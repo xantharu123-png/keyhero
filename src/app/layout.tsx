@@ -1,44 +1,23 @@
+// @ts-nocheck
 import "./globals.css";
+import Header from "@/components/Header";
+import Footer from "@/components/Footer";
 
 export const metadata = {
-  title: "KeyHero – Game Key Preisvergleich",
+  title: "KeyHero – Game Keys günstig kaufen",
   description:
-    "KeyHero vergleicht digitale Game Keys in Echtzeit. Wir zeigen dir den günstigsten Händler. Wir selbst verkaufen keine Keys.",
+    "KeyHero vergleicht Game Keys & digitale Spielepreise im Neon-Synthwave Style. Spare bei Steam, Xbox, PlayStation & mehr.",
 };
 
-export default function RootLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
+export default function RootLayout({ children }: any) {
   return (
-    <html lang="de">
-      <body className="min-h-screen flex flex-col">
-        <header className="border-b border-slate-800 bg-card/50 backdrop-blur p-4">
-          <div className="max-w-6xl mx-auto flex items-center justify-between">
-            <div className="text-white font-semibold text-lg">
-              keyhero<span className="text-accent">.ch</span>
-            </div>
-            <nav className="text-xs text-textDim flex gap-4">
-              <a className="hover:text-accent" href="/">
-                Deals
-              </a>
-              <a className="hover:text-accent" href="/store/eneba">
-                Shops
-              </a>
-              <a className="hover:text-accent" href="#">
-                Impressum
-              </a>
-            </nav>
-          </div>
-        </header>
-
-        <main className="flex-1">{children}</main>
-
-        <footer className="border-t border-slate-800 text-[10px] text-textDim p-4 text-center">
-          Wir listen Angebote externer Händler und erhalten ggf. eine Provision.
-          Alle Käufe finden beim Händler statt, nicht bei KeyHero.
-        </footer>
+    <html lang="de" className="bg-bgDeep text-textBright">
+      <body className="relative flex min-h-screen flex-col">
+        {/* Glow hinter dem Header */}
+        <div className="pointer-events-none absolute inset-x-0 top-0 z-0 h-[30vh] header-glow blur-3xl" />
+        <Header />
+        <main className="relative z-10 flex-1">{children}</main>
+        <Footer />
       </body>
     </html>
   );
