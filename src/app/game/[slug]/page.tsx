@@ -2,11 +2,7 @@ import { prisma } from "@/lib/prisma";
 import { notFound } from "next/navigation";
 import Link from "next/link";
 
-type Props = {
-  params: { slug: string };
-};
-
-export default async function GamePage({ params }: Props) {
+export default async function GamePage({ params }: { params: { slug: string } }) {
   const game = await prisma.game.findUnique({
     where: { slug: params.slug },
     include: {
@@ -45,7 +41,7 @@ export default async function GamePage({ params }: Props) {
       </div>
 
       {/* Angebote */}
-      <section className="bg-card rounded-2xl ring-1 ring-slate-700 overflow-hidden">
+      <section className="bg-card/40 rounded-2xl ring-1 ring-slate-700/60 overflow-hidden">
         <div className="px-4 py-3 text-white font-medium text-sm flex">
           <div className="w-32">Händler</div>
           <div className="hidden md:block flex-1">
