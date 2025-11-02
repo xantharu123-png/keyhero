@@ -21,7 +21,7 @@ body {
   position: relative;
 }
 
-/* Synthwave Bodenraster im unteren Bereich */
+/* Synthwave Bodenraster */
 body::after {
   content: "";
   position: fixed;

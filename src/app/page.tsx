@@ -2,7 +2,6 @@
 import Link from "next/link";
 
 export default function HomePage() {
-  // Platzhalter-Daten bis wir echte DB-Infos reinziehen
   const topDeals = [
     {
       id: 1,
@@ -128,7 +127,7 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* SHOPS / PARTNER */}
+      {/* SHOPS */}
       <section
         id="shops"
         className="relative z-10 mx-auto max-w-6xl px-4 pb-24 text-textBright"
