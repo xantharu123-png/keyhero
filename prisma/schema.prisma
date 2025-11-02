@@ -1,0 +1,75 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Game {
+  id          Int            @id @default(autoincrement())
+  name        String
+  slug        String         @unique
+  description String
+  coverImage  String
+  releaseDate DateTime?
+  pegi        Int?
+  platforms   GamePlatform[]
+  offers      Offer[]
+  createdAt   DateTime       @default(now())
+  updatedAt   DateTime       @updatedAt
+}
+
+model GamePlatform {
+  id        Int    @id @default(autoincrement())
+  game      Game   @relation(fields: [gameId], references: [id])
+  gameId    Int
+  platform  String // "PC / Steam", "PS5", "Xbox Series"
+}
+
+model Store {
+  id             Int      @id @default(autoincrement())
+  name           String   @unique
+  slug           String   @unique
+  logoUrl        String
+  rating         Float?
+  isVerified     Boolean  @default(false)
+  description    String?
+  website        String?
+  paymentMethods String[]
+  offers         Offer[]
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+}
+
+model Offer {
+  id            Int            @id @default(autoincrement())
+  game          Game           @relation(fields: [gameId], references: [id])
+  gameId        Int
+  store         Store          @relation(fields: [storeId], references: [id])
+  storeId       Int
+  edition       String
+  region        String         // "GLOBAL", "EU", "DE"
+  platform      String         // "Steam", "Uplay", "Xbox"
+  basePrice     Float
+  currency      String         // "EUR","USD","CHF"
+  feeEstimate   Float
+  finalPrice    Float
+  affiliateUrl  String
+  lastCheckedAt DateTime       @default(now())
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+
+  // <--- das ist neu:
+  priceHistory  PriceHistory[]
+}
+
+model PriceHistory {
+  id        Int      @id @default(autoincrement())
+  offer     Offer    @relation(fields: [offerId], references: [id])
+  offerId   Int
+  price     Float
+  currency  String
+  checkedAt DateTime @default(now())
+}

@@ -1,0 +1,12 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Basis-Styles für Body (ohne @apply, damit der Parser nicht ausrastet) */
+body {
+  background-color: #0f172a;
+  color: #ffffff;
+  -webkit-font-smoothing: antialiased;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
+    Roboto, "Helvetica Neue", Arial, sans-serif;
+}

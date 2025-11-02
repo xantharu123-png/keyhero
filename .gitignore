@@ -1,0 +1,16 @@
+# Node modules / build output
+node_modules
+.next
+out
+dist
+
+# Env / Secrets
+.env
+.env.local
+.env.production
+.env.development
+
+# OS / editor junk
+.DS_Store
+Thumbs.db
+.vscode

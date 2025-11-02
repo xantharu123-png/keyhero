@@ -1,0 +1,49 @@
+{
+  "compilerOptions": {
+    "target": "ES2022",
+    "lib": [
+      "dom",
+      "dom.iterable",
+      "es2022"
+    ],
+    "module": "ESNext",
+    "moduleResolution": "NodeNext",
+    "resolveJsonModule": true,
+    "noEmit": true,
+    "isolatedModules": true,
+    "esModuleInterop": true,
+    "forceConsistentCasingInFileNames": true,
+    "jsx": "preserve",
+    "strict": true,
+    "skipLibCheck": true,
+    // Das ist wichtig:
+    "baseUrl": "src",
+    "paths": {
+      "@/*": [
+        "*"
+      ]
+    },
+    "types": [
+      "node"
+    ],
+    "allowJs": true,
+    "incremental": true,
+    "plugins": [
+      {
+        "name": "next"
+      }
+    ]
+  },
+  "include": [
+    "next-env.d.ts",
+    "next.config.js",
+    "postcss.config.js",
+    "prisma",
+    "src",
+    "tailwind.config.js",
+    ".next/types/**/*.ts"
+  ],
+  "exclude": [
+    "node_modules"
+  ]
+}
