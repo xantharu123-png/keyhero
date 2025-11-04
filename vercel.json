@@ -1,5 +1,8 @@
 ﻿{
   "crons": [
-    { "path": "/api/import/offers", "schedule": "0 * * * *" }
+    {
+      "path": "/api/import/offers",
+      "schedule": "0 * * * *"
+    }
   ]
 }
