@@ -1,8 +1,8 @@
-﻿'{
+﻿{
   "crons": [
     {
       "path": "/api/import/offers",
       "schedule": "0 * * * *"
     }
   ]
-}' | Out-File -FilePath vercel.json -Encoding utf8NoBOM
+}
