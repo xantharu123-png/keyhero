@@ -1,0 +1,12 @@
+﻿# Optionaler Prisma-Model-Block fuer Offer (falls noch nicht vorhanden):
+#
+# model Offer {
+#   id        Int      @id @default(autoincrement())
+#   title     String
+#   platform  String?
+#   shop      String?
+#   priceChf  Float?
+#   rating    Float?
+#   url       String?
+#   updatedAt DateTime @updatedAt
+# }
