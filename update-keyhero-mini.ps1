@@ -1,26 +1,21 @@
 param([switch]$AutoCommit)
 
-Write-Host "KeyHero update - only write when changed"
+Write-Host "KeyHero mini update – only write when changed" -ForegroundColor Cyan
 
 function Ensure-Dir($path) {
   $dir = Split-Path -Parent $path
-  if ($dir -and -not (Test-Path $dir)) {
-    New-Item -ItemType Directory -Force -Path $dir | Out-Null
-  }
+  if ($dir -and -not (Test-Path $dir)) { New-Item -ItemType Directory -Force -Path $dir | Out-Null }
 }
 
 function Update-IfChanged($path, [string]$content) {
   Ensure-Dir $path
-  $existing = ""
-  if (Test-Path $path) {
-    $existing = Get-Content -Raw -Path $path
-  }
+  $existing = if (Test-Path $path) { Get-Content $path -Raw } else { "" }
   if ($existing -ne $content) {
     Set-Content -Path $path -Value $content -Encoding UTF8
-    Write-Host ("updated   " + $path)
+    Write-Host ("✔ updated  " + $path) -ForegroundColor Green
     return $true
   } else {
-    Write-Host ("unchanged " + $path)
+    Write-Host ("• unchanged " + $path) -ForegroundColor DarkGray
     return $false
   }
 }
@@ -119,7 +114,7 @@ export default function Header() {
 
             <div className="mx-auto w-full max-w-sm md:mx-0">
               <div className="neon-border-soft flex items-center gap-2 px-3 py-2 text-xs text-textDim">
-                <input className="w-full bg-transparent text-textBright placeholder-textDim/50 outline-none text-[12px] font-body" placeholder="Suche Spiel ... z. B. GTA VI" />
+                <input className="w-full bg-transparent text-textBright placeholder-textDim/50 outline-none text-[12px] font-body" placeholder="Suche Spiel … z. B. GTA VI" />
                 <span className="text-neonBlue text-[10px] font-hero tracking-wider">SEARCH</span>
               </div>
             </div>
@@ -149,7 +144,7 @@ export default function Footer() {
           </nav>
         </div>
         <div className="mt-3 text-[11px] text-textDim/70">
-          © {new Date().getFullYear()} KeyHero. Kein Verkauf von Keys - Preisvergleich. Angaben ohne Gewaehr.
+          © {new Date().getFullYear()} KeyHero. Kein Verkauf von Keys – Preisvergleich. Angaben ohne Gewähr.
         </div>
       </div>
     </footer>
@@ -164,7 +159,7 @@ import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 
 export const metadata = {
-  title: "KeyHero - Game Keys guenstig kaufen",
+  title: "KeyHero – Game Keys günstig kaufen",
   description: "KeyHero vergleicht Game Keys & digitale Spielepreise im Neon-Synthwave Style. Spare bei Steam, Xbox, PlayStation & mehr.",
 };
 
@@ -172,7 +167,7 @@ export default function RootLayout({ children }: any) {
   return (
     <html lang="de" className="bg-bgDeep text-textBright">
       <body className="relative flex min-h-screen flex-col">
-        <div className="pointer-events-none absolute inset-x-0 top-0 z-0 h-[30vh] header-glow blur-3xl"></div>
+        <div className="pointer-events-none absolute inset-x-0 top-0 z-0 h-[30vh] header-glow blur-3xl" />
         <Header />
         <main className="relative z-10 flex-1">{children}</main>
         <Footer />
@@ -196,16 +191,16 @@ export default function HomePage() {
   return (
     <div className="relative">
       <section className="relative z-10 mx-auto max-w-6xl px-4 pt-12 pb-16 text-center md:pt-16 md:pb-20">
-        <div className="pointer-events-none absolute left-1/2 top-0 -translate-x-1/2 -translate-y-1/3 rounded-full blur-[60px] w-64 h-64 md:w-80 md:h-80 bg-[radial-gradient(circle_at_50%_30%,rgba(255,196,0,0.4)_0%,rgba(255,0,127,0)_70%)] opacity-40"></div>
+        <div className="pointer-events-none absolute left-1/2 top-0 -translate-x-1/2 -translate-y-1/3 rounded-full blur-[60px] w-64 h-64 md:w-80 md:h-80 bg-[radial-gradient(circle_at_50%_30%,rgba(255,196,0,0.4)_0%,rgba(255,0,127,0)_70%)] opacity-40" />
         <h1 className="relative z-10 font-hero text-[1.9rem] md:text-[2.3rem] font-semibold leading-tight text-textBright drop-shadow-[0_0_10px_rgba(255,0,127,0.4)]">
           Game Keys vergleichen. <br /><span className="text-neonPink neon-text">Weniger zahlen.</span>
         </h1>
         <p className="relative z-10 mx-auto mt-4 max-w-xl text-[13px] leading-relaxed text-textDim">
-          KeyHero scannt Angebote fuer PC, Xbox und PlayStation von serioesen Anbietern. Du kaufst nicht bei uns - wir zeigen dir nur, wo es gerade am guenstigsten ist.
+          KeyHero scannt Angebote für PC, Xbox und PlayStation von seriösen Anbietern. Du kaufst nicht bei uns – wir zeigen dir nur, wo es gerade am günstigsten ist.
         </p>
         <div className="relative z-10 mx-auto mt-8 max-w-xl neon-border-soft p-4">
           <div className="flex flex-col gap-3 md:flex-row md:items-center">
-            <input className="w-full flex-1 bg-transparent text-textBright placeholder-textDim/50 outline-none text-sm font-body" placeholder="Spiel eingeben ... z. B. 'Elden Ring'" />
+            <input className="w-full flex-1 bg-transparent text-textBright placeholder-textDim/50 outline-none text-sm font-body" placeholder="Spiel eingeben … z. B. 'Elden Ring'" />
             <button className="glow-button text-[11px] px-4 py-2 whitespace-nowrap">Preis checken</button>
           </div>
           <div className="mt-2 text-[10px] text-textDim/60 text-left font-hero tracking-wider">STEAM • XBOX • PLAYSTATION • GLOBAL KEYS</div>
@@ -215,10 +210,10 @@ export default function HomePage() {
       <section id="deals" className="relative z-10 mx-auto max-w-6xl px-4 pb-16 text-textBright">
         <div className="mb-4 flex flex-col gap-2 md:flex-row md:items-end md:justify-between">
           <div>
-            <div className="font-hero text-[0.8rem] tracking-wider text-neonBlue drop-shadow-[0_0_6px_rgba(0,204,255,0.6)]">TOP DEALS HEUTE</div>
-            <div className="text-[12px] text-textDim/70 leading-relaxed max-w-md">Live aus unseren Daten. Preise in CHF. Angaben ohne Gewaehr.</div>
+            <div className="font-hero text-[0.8rem] tracking-wider text-neonBlue drop-shadow-[0_0_6px_rgba(0,204,255,0.6)]">🔥 TOP DEALS HEUTE</div>
+            <div className="text-[12px] text-textDim/70 leading-relaxed max-w-md">Live aus unseren Daten. Preise in CHF. Angaben ohne Gewähr.</div>
           </div>
-          <Link href="#" className="text-[11px] font-hero tracking-wider text-textDim hover:text-neonPink hover:drop-shadow-[0_0_4px_rgba(255,0,127,0.8)] transition self-start md:self-auto">Alle Spiele -></Link>
+          <Link href="#" className="text-[11px] font-hero tracking-wider text-textDim hover:text-neonPink hover:drop-shadow-[0_0_4px_rgba(255,0,127,0.8)] transition self-start md:self-auto">Alle Spiele →</Link>
         </div>
 
         <div className="grid gap-4 md:grid-cols-3">
@@ -236,12 +231,12 @@ export default function HomePage() {
               </div>
 
               <div className="mt-4 flex flex-wrap items-center justify-between gap-3 text-[11px] text-textDim/70">
-                <div>{deal.rating} *</div>
-                <Link href="#" className="glow-button text-[10px] px-3 py-2 leading-none font-hero tracking-wider">Zum Angebot -></Link>
+                <div>{deal.rating} ⭐</div>
+                <Link href="#" className="glow-button text-[10px] px-3 py-2 leading-none font-hero tracking-wider">Zum Angebot →</Link>
               </div>
 
               <div className="mt-3 text-[10px] text-textDim/40 leading-relaxed">
-                Kauf findet beim Haendler statt. Wir bekommen evtl. eine kleine Provision.
+                Kauf findet beim Händler statt. Wir bekommen evtl. eine kleine Provision.
               </div>
             </div>
           ))}
@@ -259,7 +254,7 @@ export default function HomePage() {
           <div className="neon-border-soft p-4 text-center"><div className="text-textBright font-hero text-[13px]">Instant Gaming</div><div className="text-[10px] text-textDim/60 mt-1">PC Keys</div></div>
           <div className="neon-border-soft p-4 text-center"><div className="text-textBright font-hero text-[13px]">G2A</div><div className="text-[10px] text-textDim/60 mt-1">Global Keys</div></div>
         </div>
-        <div className="mt-6 text-[10px] text-textDim/40 leading-relaxed max-w-xl">Wir sind kein Verkaeufer. Wir listen Preise. Du kaufst beim Haendler. Unser Service bleibt fuer dich kostenlos.</div>
+        <div className="mt-6 text-[10px] text-textDim/40 leading-relaxed max-w-xl">Wir sind kein Verkäufer. Wir listen Preise. Du kaufst beim Händler. Unser Service bleibt für dich kostenlos.</div>
       </section>
     </div>
   );
@@ -312,14 +307,14 @@ $changed = (Update-IfChanged "tailwind.config.js" $tailwind) -or $changed
 $changed = (Update-IfChanged "postcss.config.js" $postcss) -or $changed
 
 if ($AutoCommit -and $changed) {
-  Write-Host "Changes detected - committing..."
+  Write-Host "Changes detected – committing..." -ForegroundColor Yellow
   git add src/app/globals.css src/components/Header.tsx src/components/Footer.tsx src/app/layout.tsx src/app/page.tsx tailwind.config.js postcss.config.js | Out-Null
-  $msg = "ui: update (layout/header/footer/globals/tailwind/postcss) " + (Get-Date -Format 'yyyy-MM-dd HH:mm')
+  $msg = "ui: mini update (layout/header/footer/globals/tailwind/postcss) $(Get-Date -Format 'yyyy-MM-dd HH:mm')"
   git commit -m $msg | Out-Null
   git push
-  Write-Host "Pushed"
+  Write-Host "Pushed ✔" -ForegroundColor Green
 } elseif ($AutoCommit -and -not $changed) {
-  Write-Host "No changes to commit."
+  Write-Host "No changes to commit." -ForegroundColor DarkGray
 }
 
-Write-Host "Done."
+Write-Host "Done." -ForegroundColor Cyan
