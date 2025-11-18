@@ -1,63 +1,9 @@
-﻿@import url("https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600&family=Inter:wght@400;500&display=swap");
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 
-:root { color-scheme: dark; }
-* { box-sizing: border-box; }
+/* dein eigenes CSS darunter */
 
-html { font-size: 17px; }
-body {
-  @apply bg-bgDeep text-textBright font-body min-h-screen antialiased;
-  line-height: 1.6;
-  background-image:
-    radial-gradient(circle at 20% 20%, rgba(255,0,127,0.10) 0%, rgba(0,0,0,0) 65%),
-    radial-gradient(circle at 80% 30%, rgba(0,204,255,0.06) 0%, rgba(0,0,0,0) 65%),
-    radial-gradient(circle at 50% 80%, rgba(170,0,255,0.07) 0%, rgba(0,0,0,0) 65%),
-    linear-gradient(160deg,#1a0037 0%,#0c001c 40%,#000010 80%);
-  background-color: #0b0020;
-  background-repeat: no-repeat;
-  background-size: cover;
-  position: relative;
-}
+@import url("https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600&family=Inter:wght@400;500&display=swap");
 
-body::after {
-  content: "";
-  position: fixed; left: 0; right: 0; bottom: 0; height: 24vh;
-  background: repeating-linear-gradient(to right, rgba(255,0,127,0.16) 0 1px, transparent 1px 42px),
-              repeating-linear-gradient(to top,   rgba(0,204,255,0.16) 0 1px, transparent 1px 42px);
-  transform-origin: bottom;
-  transform: perspective(600px) rotateX(60deg) scale(1.1);
-  filter: drop-shadow(0 0 5px rgba(255,0,127,0.35)) drop-shadow(0 0 14px rgba(0,204,255,0.2));
-  pointer-events: none; z-index: 0;
-}
-
-.header-glow {
-  background: radial-gradient(circle at 50% 0%, rgba(255,0,127,0.18) 0%, rgba(0,0,0,0) 70%);
-}
-
-.neon-text {
-  text-shadow: 0 0 3px rgba(255,0,127,0.5), 0 0 8px rgba(170,0,255,0.25);
-}
-
-.container-xl { max-width: 1280px; margin-left: auto; margin-right: auto; }
-.neon-panel {
-  border: 1px solid rgba(255,0,127,0.30);
-  background: linear-gradient(180deg, rgba(10,0,30,0.6), rgba(8,0,24,0.5));
-  backdrop-filter: blur(8px);
-  box-shadow: 0 0 8px rgba(255,0,127,0.25), 0 0 18px rgba(0,204,255,0.15);
-  border-radius: 0.75rem;
-}
-
-.neon-border-soft {
-  border: 1px solid rgba(255,0,127,0.25);
-  background-color: rgba(10,0,30,0.45);
-  backdrop-filter: blur(6px);
-  box-shadow: 0 0 6px rgba(255,0,127,0.25), 0 0 16px rgba(0,204,255,0.15);
-  border-radius: 0.75rem;
-}
-
-.glow-button {
-  background-image: linear-gradient(90deg, #ff007f 0%, #aa00ff 50%, #00ccff 100%);
-  box-shadow: 0 0 6px rgba(255,0,127,0.4), 0 0 16px rgba(170,0,255,0.3), 0 0 24px rgba(0,204,255,0.2);
-  color: #000; font-weight: 600; border-radius: 0.75rem; line-height: 1.2;
-  font-family: "Orbitron", system-ui, sans-serif;
-}
-.glow-button:hover { filter: brightness(1.09); }
+/* Hier kannst du später wieder dein eigenes CSS ergänzen */
