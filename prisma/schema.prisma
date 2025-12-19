@@ -11,65 +11,91 @@ model Game {
   id          Int            @id @default(autoincrement())
   name        String
   slug        String         @unique
-  description String
-  coverImage  String
+  description String?
+  coverImage  String?
   releaseDate DateTime?
-  pegi        Int?
-  platforms   GamePlatform[]
-  offers      Offer[]
+  pegi        Int?           // NEU für dein Seed
+
   createdAt   DateTime       @default(now())
   updatedAt   DateTime       @updatedAt
+
+  platforms   GamePlatform[]
+  offers      Offer[]
 }
 
 model GamePlatform {
-  id        Int    @id @default(autoincrement())
-  game      Game   @relation(fields: [gameId], references: [id])
+  id        Int      @id @default(autoincrement())
   gameId    Int
-  platform  String // "PC / Steam", "PS5", "Xbox Series"
+  platform  String
+  region    String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  game      Game    @relation(fields: [gameId], references: [id])
+
+  @@index([gameId])
 }
 
 model Store {
   id             Int      @id @default(autoincrement())
   name           String   @unique
   slug           String   @unique
-  logoUrl        String
+  url            String?
+  website        String?  // NEU für dein Seed
+  logoUrl        String?
   rating         Float?
-  isVerified     Boolean  @default(false)
-  description    String?
-  website        String?
-  paymentMethods String[]
-  offers         Offer[]
-  createdAt      DateTime @default(now())
-  updatedAt      DateTime @updatedAt
+  isVerified     Boolean  @default(false) // NEU
+  description    String?  // NEU
+  paymentMethods String[] // NEU (Array für Postgres)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  offers    Offer[]
 }
 
 model Offer {
   id            Int            @id @default(autoincrement())
-  game          Game           @relation(fields: [gameId], references: [id])
+
+  // Alte Felder optional gemacht, damit der Seed nicht crasht
+  title         String?
+  platform      String
+  shop          String?       
+  priceChf      Float?
+  url           String?
+  rating        Float?
+
+  // Felder aus deinem Seed
   gameId        Int
-  store         Store          @relation(fields: [storeId], references: [id])
   storeId       Int
-  edition       String
-  region        String         // "GLOBAL", "EU", "DE"
-  platform      String         // "Steam", "Uplay", "Xbox"
-  basePrice     Float
-  currency      String         // "EUR","USD","CHF"
-  feeEstimate   Float
-  finalPrice    Float
-  affiliateUrl  String
-  lastCheckedAt DateTime       @default(now())
+  edition       String?
+  region        String?
+  basePrice     Float?
+  currency      String?
+  feeEstimate   Float?
+  finalPrice    Float?
+  affiliateUrl  String?
+  lastCheckedAt DateTime?
+
   createdAt     DateTime       @default(now())
   updatedAt     DateTime       @updatedAt
 
-  // <--- das ist neu:
+  game          Game   @relation(fields: [gameId], references: [id])
+  store         Store  @relation(fields: [storeId], references: [id])
   priceHistory  PriceHistory[]
+
+  @@index([gameId])
+  @@index([storeId])
 }
 
 model PriceHistory {
   id        Int      @id @default(autoincrement())
-  offer     Offer    @relation(fields: [offerId], references: [id])
   offerId   Int
   price     Float
   currency  String
   checkedAt DateTime @default(now())
+
+  offer     Offer    @relation(fields: [offerId], references: [id])
+
+  @@index([offerId])
 }
