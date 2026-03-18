@@ -1,14 +1,29 @@
-﻿// @ts-nocheck
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { runOfferImport } from "@/lib/importer";
 
 export const revalidate = 0;
+export const maxDuration = 60; // Allow up to 60s for import
 
-export async function GET() {
+export async function GET(request: NextRequest) {
+  // Optional: protect with a secret key
+  const authHeader = request.nextUrl.searchParams.get("key");
+  const expectedKey = process.env.IMPORT_SECRET;
+
+  if (expectedKey && authHeader !== expectedKey) {
+    return NextResponse.json(
+      { success: false, error: "Unauthorized" },
+      { status: 401 }
+    );
+  }
+
   try {
     const res = await runOfferImport();
     return NextResponse.json({ success: true, ...res }, { status: 200 });
   } catch (e: any) {
-    return NextResponse.json({ success: false, error: e?.message ?? "import failed" }, { status: 500 });
+    console.error("Import failed:", e);
+    return NextResponse.json(
+      { success: false, error: e?.message ?? "import failed" },
+      { status: 500 }
+    );
   }
 }

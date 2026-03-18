@@ -1,26 +1,60 @@
-﻿// @ts-nocheck
-export const metadata = { title: "Shops â€“ KeyHero", description: "Verglichene HÃ¤ndler" };
+import Link from "next/link";
+import { prisma } from "@/lib/prisma";
 
-const SHOPS = [
-  { name: "CDKeys", note: "Trusted Seller" },
-  { name: "Eneba", note: "Key Marketplace" },
-  { name: "Instant Gaming", note: "PC Keys" },
-  { name: "G2A", note: "Global Keys" },
-];
+export const metadata = {
+  title: "Shops - KeyHero",
+  description: "Verglichene Händler",
+};
 
-export default function ShopsPage() {
+export default async function ShopsPage() {
+  let stores: any[] = [];
+  try {
+    stores = await prisma.store.findMany({
+      orderBy: { name: "asc" },
+      include: {
+        _count: { select: { offers: true } },
+      },
+    });
+  } catch (e) {
+    console.error("Stores fetch error:", e);
+  }
+
   return (
-    <div className="container-xl px-4 py-10">
-      <h1 className="font-hero text-[1.4rem] text-textBright mb-2">Shops</h1>
-      <p className="text-[13px] text-textDim/75 mb-6">Wir vergleichen seriÃ¶se Anbieter fÃ¼r digitale Keys.</p>
-      <div className="grid gap-4 md:grid-cols-4">
-        {SHOPS.map((s) => (
-          <div key={s.name} className="neon-border-soft p-4 text-center text-[12px]">
-            <div className="text-textBright font-hero text-[13px]">{s.name}</div>
-            <div className="text-[10px] text-textDim/70 mt-1">{s.note}</div>
-          </div>
-        ))}
-      </div>
+    <div className="max-w-6xl mx-auto px-4 py-10">
+      <h1 className="text-2xl font-bold text-white mb-2">Shops</h1>
+      <p className="text-sm text-gray-400 mb-6">
+        Wir vergleichen seriöse Anbieter für digitale Keys.
+      </p>
+
+      {stores.length === 0 ? (
+        <div className="border border-white/10 rounded-xl p-6 text-sm text-gray-400 text-center">
+          Noch keine Shops in der Datenbank. Führe den Importer aus um Daten zu
+          laden.
+        </div>
+      ) : (
+        <div className="grid gap-4 md:grid-cols-3 lg:grid-cols-4">
+          {stores.map((store: any) => (
+            <Link
+              key={store.id}
+              href={`/store/${store.slug}`}
+              className="group block bg-white/5 border border-white/10 rounded-xl p-5 text-center hover:border-pink-500/50 transition-all"
+            >
+              <div className="w-12 h-12 rounded-full bg-pink-600/20 border border-pink-500/30 flex items-center justify-center mx-auto mb-3 text-pink-400 font-bold text-lg">
+                {store.name.charAt(0)}
+              </div>
+              <div className="text-white font-semibold text-sm group-hover:text-pink-400 transition-colors">
+                {store.name}
+              </div>
+              <div className="text-xs text-gray-500 mt-1">
+                {store._count.offers} Angebote
+              </div>
+              {store.isVerified && (
+                <div className="text-xs text-green-400 mt-2">Verifiziert</div>
+              )}
+            </Link>
+          ))}
+        </div>
+      )}
     </div>
   );
 }
