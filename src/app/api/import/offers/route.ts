@@ -23,6 +23,7 @@ export async function GET(request: NextRequest) {
 
   const results: Record<string, any> = {
     success: true,
+    version: "2.0-kinguin",
     timestamp: new Date().toISOString(),
   };
 
