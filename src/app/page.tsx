@@ -2,6 +2,8 @@ import Link from "next/link";
 import { prisma } from "@/lib/prisma";
 import SearchBar from "@/components/SearchBar";
 
+export const dynamic = "force-dynamic";
+
 async function getTopDeals() {
   const games = await prisma.game.findMany({
     take: 9,
