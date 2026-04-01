@@ -1,24 +1,26 @@
-// @ts-nocheck
-import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { redirect } from "next/navigation";
 
-export async function GET(req: NextRequest, context: any) {
-  const idParam = context?.params?.offerId;
-  const idNum = Number(idParam);
+// WICHTIG: Hier steht jetzt { params: { offerId: string } }, weil dein Ordner [offerId] heißt
+export async function GET(request: Request, { params }: { params: { offerId: string } }) {
+  
+  // 1. ID in eine Zahl umwandeln (da deine DB "Int" benutzt)
+  const offerId = parseInt(params.offerId);
 
-  if (Number.isNaN(idNum)) {
-    return NextResponse.json({ error: "Invalid offer id" }, { status: 400 });
+  if (isNaN(offerId)) {
+    return new Response("Invalid ID", { status: 400 });
   }
 
+  // 2. Das Angebot in der Datenbank suchen
   const offer = await prisma.offer.findUnique({
-    where: { id: idNum },
+    where: { id: offerId },
   });
 
+  // 3. Wenn nicht gefunden, Fehler anzeigen
   if (!offer) {
-    return NextResponse.json({ error: "Offer not found" }, { status: 404 });
+    return new Response("Offer not found", { status: 404 });
   }
 
-  // Später: Klick-Tracking hier (z. B. prisma.clickLog.create(...))
-
-  return NextResponse.redirect(offer.affiliateUrl);
+  // 4. Weiterleiten zum Affiliate Link (oder normalen Link als Fallback)
+  return redirect(offer.affiliateUrl || offer.url || "/");
 }

@@ -2,12 +2,13 @@
   "name": "keyhero",
   "version": "1.0.0",
   "private": true,
-  "scripts": {
+ "scripts": {
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "db:fix": "npx prisma db push && npx prisma generate"
+    "db:fix": "npx prisma db push && npx prisma generate",
+    "vercel-build": "npx prisma generate && next build"
   },
   "dependencies": {
     "@prisma/client": "^6.19.0",

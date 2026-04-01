@@ -1,9 +1,12 @@
 import Link from "next/link";
 import { prisma } from "@/lib/prisma";
+import type { Metadata } from "next";
 
-export const metadata = {
-  title: "Shops - KeyHero",
-  description: "Verglichene Händler",
+export const metadata: Metadata = {
+  title: "Key-Shops im Vergleich – Verifizierte Händler",
+  description:
+    "Übersicht aller Key-Shops die KeyHero vergleicht. Verifizierte Händler für sichere Game-Key-Käufe in der DACH-Region.",
+  alternates: { canonical: "https://keyhero.ch/shops" },
 };
 
 export default async function ShopsPage() {
@@ -21,15 +24,14 @@ export default async function ShopsPage() {
 
   return (
     <div className="max-w-6xl mx-auto px-4 py-10">
-      <h1 className="text-2xl font-bold text-white mb-2">Shops</h1>
+      <h1 className="text-2xl font-bold text-white mb-2">Key-Shops</h1>
       <p className="text-sm text-gray-400 mb-6">
-        Wir vergleichen seriöse Anbieter für digitale Keys.
+        Wir vergleichen Preise aus seriösen und verifizierten Key-Shops für die DACH-Region.
       </p>
 
       {stores.length === 0 ? (
         <div className="border border-white/10 rounded-xl p-6 text-sm text-gray-400 text-center">
-          Noch keine Shops in der Datenbank. Führe den Importer aus um Daten zu
-          laden.
+          Noch keine Shops in der Datenbank.
         </div>
       ) : (
         <div className="grid gap-4 md:grid-cols-3 lg:grid-cols-4">
@@ -49,7 +51,14 @@ export default async function ShopsPage() {
                 {store._count.offers} Angebote
               </div>
               {store.isVerified && (
-                <div className="text-xs text-green-400 mt-2">Verifiziert</div>
+                <div className="text-xs text-green-400 mt-2 flex items-center justify-center gap-1">
+                  <span>✓</span> Verifiziert
+                </div>
+              )}
+              {store.rating && (
+                <div className="text-xs text-yellow-400/70 mt-1">
+                  {store.rating}/5
+                </div>
               )}
             </Link>
           ))}

@@ -8,16 +8,16 @@ datasource db {
 }
 
 model Game {
-  id          Int            @id @default(autoincrement())
+  id          Int       @id @default(autoincrement())
   name        String
-  slug        String         @unique
+  slug        String    @unique
   description String?
   coverImage  String?
   releaseDate DateTime?
-  pegi        Int?           // NEU für dein Seed
+  pegi        Int?
 
-  createdAt   DateTime       @default(now())
-  updatedAt   DateTime       @updatedAt
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
 
   platforms   GamePlatform[]
   offers      Offer[]
@@ -31,7 +31,7 @@ model GamePlatform {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  game      Game    @relation(fields: [gameId], references: [id])
+  game      Game     @relation(fields: [gameId], references: [id])
 
   @@index([gameId])
 }
@@ -41,31 +41,31 @@ model Store {
   name           String   @unique
   slug           String   @unique
   url            String?
-  website        String?  // NEU für dein Seed
+  website        String?
   logoUrl        String?
   rating         Float?
-  isVerified     Boolean  @default(false) // NEU
-  description    String?  // NEU
-  paymentMethods String[] // NEU (Array für Postgres)
+  isVerified     Boolean  @default(false)
+  description    String?
+  paymentMethods String[]
 
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
 
-  offers    Offer[]
+  offers         Offer[]
 }
 
 model Offer {
-  id            Int            @id @default(autoincrement())
-
-  // Alte Felder optional gemacht, damit der Seed nicht crasht
+  id            Int      @id @default(autoincrement())
+  
+  // Alte Felder optional
   title         String?
   platform      String
-  shop          String?       
+  shop          String?
   priceChf      Float?
   url           String?
   rating        Float?
 
-  // Felder aus deinem Seed
+  // Neue wichtige Felder
   gameId        Int
   storeId       Int
   edition       String?
@@ -77,11 +77,11 @@ model Offer {
   affiliateUrl  String?
   lastCheckedAt DateTime?
 
-  createdAt     DateTime       @default(now())
-  updatedAt     DateTime       @updatedAt
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
 
-  game          Game   @relation(fields: [gameId], references: [id])
-  store         Store  @relation(fields: [storeId], references: [id])
+  game          Game     @relation(fields: [gameId], references: [id])
+  store         Store    @relation(fields: [storeId], references: [id])
   priceHistory  PriceHistory[]
 
   @@index([gameId])
