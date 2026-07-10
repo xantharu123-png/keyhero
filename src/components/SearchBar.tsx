@@ -71,7 +71,7 @@ export default function SearchBar({
   const isHero = variant === "hero";
 
   return (
-    <div ref={wrapperRef} className="relative w-full">
+    <div ref={wrapperRef} className="relative z-50 w-full">
       <div
         className={
           isHero
@@ -110,7 +110,7 @@ export default function SearchBar({
 
       {/* Dropdown Results */}
       {isOpen && (
-        <div className="absolute top-full left-0 right-0 mt-2 bg-[#1a1a2e] border border-white/10 rounded-xl overflow-hidden shadow-2xl z-50 max-h-80 overflow-y-auto">
+        <div className="absolute left-0 right-0 top-full z-[80] mt-2 max-h-[22rem] overflow-y-auto rounded-xl border border-white/10 bg-[#141427] shadow-2xl">
           {results.length === 0 && query.length >= 2 && !isLoading ? (
             <div className="px-4 py-6 text-center text-gray-500 text-sm">
               Kein Spiel gefunden für &quot;{query}&quot;
@@ -124,7 +124,7 @@ export default function SearchBar({
                   setIsOpen(false);
                   setQuery("");
                 }}
-                className="flex items-center gap-3 px-4 py-3 hover:bg-white/5 transition-colors border-b border-white/5 last:border-b-0"
+                className="grid min-h-[64px] grid-cols-[40px_minmax(0,1fr)_92px] items-center gap-3 border-b border-white/5 px-4 py-3 transition-colors last:border-b-0 hover:bg-white/5"
               >
                 {/* Thumbnail */}
                 <div className="w-10 h-10 rounded-lg bg-gray-900 overflow-hidden shrink-0">
@@ -142,18 +142,18 @@ export default function SearchBar({
                 </div>
 
                 {/* Info */}
-                <div className="flex-1 min-w-0">
-                  <div className="text-white text-sm font-medium truncate">
+                <div className="min-w-0 overflow-hidden text-left">
+                  <div className="truncate pr-2 text-sm font-medium leading-snug text-white">
                     {game.name}
                   </div>
                 </div>
 
                 {/* Price */}
-                {game.lowestPrice != null && (
-                  <div className="text-pink-400 font-bold text-sm shrink-0">
-                    ab {game.lowestPrice.toFixed(2)} {game.currency}
-                  </div>
-                )}
+                <div className="whitespace-nowrap text-right text-sm font-bold text-pink-400">
+                  {game.lowestPrice != null
+                    ? `ab ${game.lowestPrice.toFixed(2)} ${game.currency}`
+                    : ""}
+                </div>
               </Link>
             ))
           )}

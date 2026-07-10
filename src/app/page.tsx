@@ -62,12 +62,12 @@ export default async function HomePage() {
         </p>
 
         {/* Search */}
-        <div className="relative z-10 mx-auto max-w-xl">
+        <div className="relative z-40 mx-auto max-w-xl">
           <SearchBar variant="hero" placeholder="Spiel suchen... z.B. 'FC 25'" />
         </div>
 
         {/* Trust Badges */}
-        <div className="relative z-10 flex flex-wrap justify-center gap-6 mt-8 text-xs text-gray-500">
+        <div className="relative z-0 mt-8 flex flex-wrap justify-center gap-6 text-xs text-gray-500">
           <div className="flex items-center gap-1.5">
             <span className="w-2 h-2 rounded-full bg-green-500" />
             {stats.gameCount}+ Spiele

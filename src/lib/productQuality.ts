@@ -176,22 +176,150 @@ export function formatCheckedAt(value: Date | null | undefined) {
   }).format(value);
 }
 
-export function getSearchRank(name: string, query: string) {
-  const normalizedName = name.toLowerCase();
-  const normalizedQuery = query.trim().toLowerCase();
+const romanNumberMap: Record<string, string> = {
+  i: "1",
+  ii: "2",
+  iii: "3",
+  iv: "4",
+  v: "5",
+  vi: "6",
+  vii: "7",
+  viii: "8",
+  ix: "9",
+  x: "10",
+  xi: "11",
+  xii: "12",
+  xiii: "13",
+  xiv: "14",
+  xv: "15",
+  xvi: "16",
+  xvii: "17",
+  xviii: "18",
+  xix: "19",
+  xx: "20",
+};
 
-  if (!normalizedQuery) return 0;
-  if (normalizedName === normalizedQuery) return 5;
-  if (normalizedName.startsWith(normalizedQuery)) return 4;
+const numberRomanMap = Object.fromEntries(
+  Object.entries(romanNumberMap).map(([roman, number]) => [number, roman])
+);
 
-  const boundaryMatch = new RegExp(`(^|[^a-z0-9])${escapeRegExp(normalizedQuery)}`).test(normalizedName);
-  if (boundaryMatch) return 3;
+const searchStopWords = new Set(["a", "an", "and", "bundle", "cd", "edition", "for", "key", "of", "pc", "steam", "the"]);
 
-  return normalizedName.includes(normalizedQuery) ? 1 : 0;
+export function buildSearchTerms(query: string) {
+  const cleaned = cleanSearchText(query);
+  const terms = new Set<string>();
+
+  addSearchTerm(terms, query.trim());
+  addSearchTerm(terms, cleaned);
+
+  for (const token of cleaned.split(" ")) {
+    if (!token || searchStopWords.has(token)) continue;
+
+    addSearchTerm(terms, token);
+    addSearchTerm(terms, canonicalSearchToken(token));
+
+    const roman = numberRomanMap[token];
+    if (roman) addSearchTerm(terms, roman);
+
+    const number = romanNumberMap[token];
+    if (number) addSearchTerm(terms, number);
+
+    const singular = singularizeToken(token);
+    addSearchTerm(terms, singular);
+    addSearchTerm(terms, pluralizeToken(singular));
+  }
+
+  return Array.from(terms).filter((term) => term.length >= 2).slice(0, 16);
 }
 
-function escapeRegExp(value: string) {
-  return value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+export function getSearchRank(name: string, query: string) {
+  const nameTokens = getSearchTokens(name);
+  const queryTokens = getSearchTokens(query);
+
+  if (queryTokens.length === 0) return 0;
+
+  const normalizedName = nameTokens.join(" ");
+  const normalizedQuery = queryTokens.join(" ");
+
+  if (normalizedName === normalizedQuery) return adjustSearchScore(100, nameTokens, queryTokens);
+  if (normalizedName.startsWith(normalizedQuery)) return adjustSearchScore(90, nameTokens, queryTokens);
+  if (normalizedName.includes(normalizedQuery)) return adjustSearchScore(82, nameTokens, queryTokens);
+
+  const nameTokenSet = new Set(nameTokens);
+  const requiredNumbers = queryTokens.filter((token) => /^\d+$/.test(token));
+  if (requiredNumbers.some((token) => !nameTokenSet.has(token))) return 0;
+
+  const matched = queryTokens.filter((token) => nameTokenSet.has(token));
+  if (matched.length === 0) return 0;
+
+  const coverage = matched.length / queryTokens.length;
+  const requiredCoverage = queryTokens.length <= 2 ? 1 : 0.66;
+  if (coverage < requiredCoverage) return 0;
+
+  let score = Math.round(coverage * 65);
+  if (nameTokens[0] === queryTokens[0]) score += 12;
+  if (tokensAppearInOrder(nameTokens, queryTokens)) score += 12;
+  if (nameTokenSet.has("definitive") && queryTokens.length <= 2) score += 3;
+
+  return adjustSearchScore(score, nameTokens, queryTokens);
+}
+
+function cleanSearchText(value: string) {
+  return value
+    .toLowerCase()
+    .replace(/&/g, " and ")
+    .replace(/[^a-z0-9]+/g, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
+function addSearchTerm(terms: Set<string>, value: string | null | undefined) {
+  const cleaned = cleanSearchText(value || "");
+  if (cleaned.length >= 2) terms.add(cleaned);
+}
+
+function getSearchTokens(value: string) {
+  return cleanSearchText(value)
+    .split(" ")
+    .map(canonicalSearchToken)
+    .filter((token) => token && !searchStopWords.has(token));
+}
+
+function canonicalSearchToken(token: string) {
+  return singularizeToken(romanNumberMap[token] || token);
+}
+
+function singularizeToken(token: string) {
+  if (token.length <= 3 || /^\d+$/.test(token)) return token;
+  if (token.endsWith("ies")) return `${token.slice(0, -3)}y`;
+  if (token.endsWith("s") && !token.endsWith("ss")) return token.slice(0, -1);
+  return token;
+}
+
+function pluralizeToken(token: string) {
+  if (token.length <= 3 || /^\d+$/.test(token)) return token;
+  if (token.endsWith("y")) return `${token.slice(0, -1)}ies`;
+  if (token.endsWith("s")) return token;
+  return `${token}s`;
+}
+
+function tokensAppearInOrder(nameTokens: string[], queryTokens: string[]) {
+  let cursor = 0;
+  for (const token of nameTokens) {
+    if (token === queryTokens[cursor]) cursor++;
+    if (cursor === queryTokens.length) return true;
+  }
+  return false;
+}
+
+function adjustSearchScore(score: number, nameTokens: string[], queryTokens: string[]) {
+  const querySet = new Set(queryTokens);
+  const addonTerms = ["addon", "dlc", "expansion", "pack", "pass"];
+  const queryWantsAddon = addonTerms.some((term) => querySet.has(term));
+  const nameLooksLikeAddon = addonTerms.some((term) => nameTokens.includes(term));
+
+  if (nameLooksLikeAddon && !queryWantsAddon) return Math.max(score - 25, 0);
+  return score;
 }
 
 function toDate(value: Date | string | null | undefined) {
