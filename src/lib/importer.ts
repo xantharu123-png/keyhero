@@ -15,25 +15,58 @@ import { isGameKeyProduct } from "@/lib/productQuality";
 const USD_TO_EUR = 0.92;
 const USD_TO_CHF = 0.88;
 
-const CHEAPSHARK_STORES: Record<string, { name: string; slug: string; url: string }> = {
-  "0":  { name: "Steam",             slug: "steam",           url: "https://store.steampowered.com" },
-  "1":  { name: "GamersGate",        slug: "gamersgate",      url: "https://www.gamersgate.com" },
-  "2":  { name: "GreenManGaming",    slug: "greenmangaming",  url: "https://www.greenmangaming.com" },
-  "7":  { name: "GOG",               slug: "gog",             url: "https://www.gog.com" },
-  "8":  { name: "Origin",            slug: "origin",          url: "https://www.origin.com" },
-  "11": { name: "Humble Store",      slug: "humble-store",    url: "https://www.humblebundle.com/store" },
-  "13": { name: "Uplay",             slug: "uplay",           url: "https://store.ubi.com" },
-  "15": { name: "Fanatical",         slug: "fanatical",       url: "https://www.fanatical.com" },
-  "21": { name: "WinGameStore",      slug: "wingamestore",    url: "https://www.wingamestore.com" },
-  "23": { name: "GameBillet",        slug: "gamebillet",      url: "https://www.gamebillet.com" },
-  "24": { name: "Voidu",             slug: "voidu",           url: "https://www.voidu.com" },
-  "25": { name: "Epic Games Store",  slug: "epic",            url: "https://store.epicgames.com" },
-  "27": { name: "Gamesplanet",       slug: "gamesplanet",     url: "https://www.gamesplanet.com" },
-  "29": { name: "GamesPlanet UK",    slug: "gamesplanet-uk",  url: "https://uk.gamesplanet.com" },
-  "30": { name: "IndieGala",         slug: "indiegala",       url: "https://www.indiegala.com" },
-  "33": { name: "DLGamer",           slug: "dlgamer",         url: "https://www.dlgamer.com" },
-  "34": { name: "Noctre",            slug: "noctre",          url: "https://www.noctre.com" },
-  "35": { name: "DreamGame",         slug: "dreamgame",       url: "https://www.dreamgame.com" },
+type CheapSharkStoreInfo = { name: string; slug: string; url: string; active?: boolean };
+
+const CHEAPSHARK_API_BASE = "https://www.cheapshark.com/api/1.0";
+
+const CHEAPSHARK_STORE_URLS: Record<string, string> = {
+  Steam: "https://store.steampowered.com",
+  GamersGate: "https://www.gamersgate.com",
+  GreenManGaming: "https://www.greenmangaming.com",
+  Amazon: "https://www.amazon.com",
+  GameStop: "https://www.gamestop.com",
+  Direct2Drive: "https://www.direct2drive.com",
+  GOG: "https://www.gog.com",
+  Origin: "https://www.ea.com",
+  "Humble Store": "https://www.humblebundle.com/store",
+  Uplay: "https://store.ubisoft.com",
+  Fanatical: "https://www.fanatical.com",
+  WinGameStore: "https://www.wingamestore.com",
+  GameBillet: "https://www.gamebillet.com",
+  Voidu: "https://www.voidu.com",
+  "Epic Games Store": "https://store.epicgames.com",
+  Gamesplanet: "https://www.gamesplanet.com",
+  Gamesload: "https://www.gamesload.com",
+  IndieGala: "https://www.indiegala.com",
+  DLGamer: "https://www.dlgamer.com",
+  Noctre: "https://www.noctre.com",
+  DreamGame: "https://www.dreamgame.com",
+};
+
+const CHEAPSHARK_STORE_SLUGS: Record<string, string> = {
+  GreenManGaming: "greenmangaming",
+  WinGameStore: "wingamestore",
+  GameBillet: "gamebillet",
+  "Epic Games Store": "epic",
+  IndieGala: "indiegala",
+  "Humble Store": "humble-store",
+};
+
+const CHEAPSHARK_STORES: Record<string, CheapSharkStoreInfo> = {
+  "1": { name: "Steam", slug: "steam", url: "https://store.steampowered.com", active: true },
+  "2": { name: "GamersGate", slug: "gamersgate", url: "https://www.gamersgate.com", active: true },
+  "3": { name: "GreenManGaming", slug: "greenmangaming", url: "https://www.greenmangaming.com", active: true },
+  "7": { name: "GOG", slug: "gog", url: "https://www.gog.com", active: true },
+  "11": { name: "Humble Store", slug: "humble-store", url: "https://www.humblebundle.com/store", active: true },
+  "13": { name: "Uplay", slug: "uplay", url: "https://store.ubisoft.com", active: true },
+  "15": { name: "Fanatical", slug: "fanatical", url: "https://www.fanatical.com", active: true },
+  "21": { name: "WinGameStore", slug: "wingamestore", url: "https://www.wingamestore.com", active: true },
+  "23": { name: "GameBillet", slug: "gamebillet", url: "https://www.gamebillet.com", active: true },
+  "25": { name: "Epic Games Store", slug: "epic", url: "https://store.epicgames.com", active: true },
+  "27": { name: "Gamesplanet", slug: "gamesplanet", url: "https://www.gamesplanet.com", active: true },
+  "28": { name: "Gamesload", slug: "gamesload", url: "https://www.gamesload.com", active: true },
+  "30": { name: "IndieGala", slug: "indiegala", url: "https://www.indiegala.com", active: true },
+  "35": { name: "DreamGame", slug: "dreamgame", url: "https://www.dreamgame.com", active: true },
 };
 
 function slugify(name: string): string {
@@ -42,6 +75,42 @@ function slugify(name: string): string {
     .replace(/[^a-z0-9]+/g, "-")
     .replace(/(^-|-$)/g, "")
     .substring(0, 200);
+}
+
+function slugifyStore(name: string): string {
+  return CHEAPSHARK_STORE_SLUGS[name] || slugify(name);
+}
+
+async function getCheapSharkStoreMap(): Promise<Record<string, CheapSharkStoreInfo>> {
+  try {
+    const res = await fetch(`${CHEAPSHARK_API_BASE}/stores?format=json`, {
+      headers: {
+        Accept: "application/json",
+        "User-Agent": "KeyHero/1.0",
+      },
+      next: { revalidate: 3600 },
+    });
+
+    if (!res.ok) throw new Error(`CheapShark stores HTTP ${res.status}`);
+
+    const stores: { storeID: string; storeName: string; isActive: number }[] = await res.json();
+    return Object.fromEntries(
+      stores
+        .filter((store) => store.isActive === 1)
+        .map((store) => [
+          store.storeID,
+          {
+            name: store.storeName,
+            slug: slugifyStore(store.storeName),
+            url: CHEAPSHARK_STORE_URLS[store.storeName] || `https://www.cheapshark.com`,
+            active: true,
+          },
+        ])
+    );
+  } catch (error) {
+    console.error("CheapShark store list fallback:", error);
+    return CHEAPSHARK_STORES;
+  }
 }
 
 interface CheapSharkDeal {
@@ -67,14 +136,21 @@ interface CheapSharkDeal {
  */
 export async function runOfferImport(pageSize = 60, pageCount = 5) {
   const results = { games: 0, offers: 0, stores: 0, priceHistory: 0, errors: 0 };
+  const cheapSharkStores = await getCheapSharkStoreMap();
 
   // Fetch multiple pages of deals
   const allDeals: CheapSharkDeal[] = [];
 
   for (let page = 0; page < pageCount; page++) {
     try {
-      const url = `https://www.cheapshark.com/api/1.0/deals?pageSize=${pageSize}&pageNumber=${page}&sortBy=Deal+Rating&onSale=1`;
-      const res = await fetch(url, { next: { revalidate: 0 } });
+      const url = `${CHEAPSHARK_API_BASE}/deals?format=json&pageSize=${pageSize}&pageNumber=${page}&sortBy=Deal%20Rating&onSale=1`;
+      const res = await fetch(url, {
+        headers: {
+          Accept: "application/json",
+          "User-Agent": "KeyHero/1.0",
+        },
+        next: { revalidate: 0 },
+      });
       if (!res.ok) {
         console.error(`CheapShark API error page ${page}: ${res.status}`);
         results.errors++;
@@ -95,7 +171,7 @@ export async function runOfferImport(pageSize = 60, pageCount = 5) {
   for (const deal of allDeals) {
     if (!isGameKeyProduct(deal.title)) continue;
 
-    const storeInfo = CHEAPSHARK_STORES[deal.storeID];
+    const storeInfo = cheapSharkStores[deal.storeID];
     if (!storeInfo || storeCache.has(deal.storeID)) continue;
 
     const store = await prisma.store.upsert({
@@ -121,7 +197,7 @@ export async function runOfferImport(pageSize = 60, pageCount = 5) {
     if (!isGameKeyProduct(deal.title)) continue;
 
     if (!storeCache.has(deal.storeID)) {
-      const storeInfo = CHEAPSHARK_STORES[deal.storeID];
+      const storeInfo = cheapSharkStores[deal.storeID];
       if (!storeInfo) continue;
       const store = await prisma.store.findUnique({ where: { slug: storeInfo.slug } });
       if (store) storeCache.set(deal.storeID, store.id);
@@ -253,8 +329,15 @@ export async function runOfferImport(pageSize = 60, pageCount = 5) {
  * Search CheapShark for a specific game and import results
  */
 export async function searchAndImport(query: string) {
-  const url = `https://www.cheapshark.com/api/1.0/deals?title=${encodeURIComponent(query)}&pageSize=30&sortBy=Price`;
-  const res = await fetch(url);
+  const cheapSharkStores = await getCheapSharkStoreMap();
+  const url = `${CHEAPSHARK_API_BASE}/deals?format=json&title=${encodeURIComponent(query)}&pageSize=30&sortBy=Price`;
+  const res = await fetch(url, {
+    headers: {
+      Accept: "application/json",
+      "User-Agent": "KeyHero/1.0",
+    },
+    next: { revalidate: 0 },
+  });
   if (!res.ok) throw new Error(`CheapShark search failed: ${res.status}`);
 
   const deals: CheapSharkDeal[] = await res.json();
@@ -265,7 +348,7 @@ export async function searchAndImport(query: string) {
   const storeCache = new Map<string, number>();
 
   for (const deal of gameDeals) {
-    const storeInfo = CHEAPSHARK_STORES[deal.storeID];
+    const storeInfo = cheapSharkStores[deal.storeID];
     if (!storeInfo || storeCache.has(deal.storeID)) continue;
 
     const store = await prisma.store.upsert({
@@ -288,7 +371,7 @@ export async function searchAndImport(query: string) {
   // Resolve existing stores
   for (const deal of gameDeals) {
     if (!storeCache.has(deal.storeID)) {
-      const storeInfo = CHEAPSHARK_STORES[deal.storeID];
+      const storeInfo = cheapSharkStores[deal.storeID];
       if (!storeInfo) continue;
       const store = await prisma.store.findUnique({ where: { slug: storeInfo.slug } });
       if (store) storeCache.set(deal.storeID, store.id);

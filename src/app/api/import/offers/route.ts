@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
+import { runAffiliateFeedImport } from "@/lib/affiliateFeeds";
 import { runOfferImport } from "@/lib/importer";
 import { runKinguinImport } from "@/lib/kinguin";
+import { syncSupplierCatalog } from "@/lib/supplierCatalog";
 
 export const revalidate = 0;
 export const maxDuration = 60;
@@ -18,14 +20,23 @@ export async function GET(request: NextRequest) {
     );
   }
 
-  // Which source to import? Default: both
+  // Which source to import? Default: all configured sources
   const source = request.nextUrl.searchParams.get("source") || "all";
 
   const results: Record<string, any> = {
     success: true,
-    version: "2.0-kinguin",
+    version: "3.0-supplier-feeds",
     timestamp: new Date().toISOString(),
   };
+
+  if (source === "all" || source === "suppliers" || source === "catalog") {
+    try {
+      results.suppliers = await syncSupplierCatalog();
+    } catch (e: any) {
+      console.error("Supplier catalog sync failed:", e);
+      results.suppliers = { ok: false, error: e?.message };
+    }
+  }
 
   // Kinguin Import (primary source – real affiliate money)
   if (source === "all" || source === "kinguin") {
@@ -49,9 +60,21 @@ export async function GET(request: NextRequest) {
     }
   }
 
+  if (source === "all" || source === "affiliate" || source === "feeds") {
+    try {
+      const affiliateResult = await runAffiliateFeedImport();
+      results.affiliate = affiliateResult;
+    } catch (e: any) {
+      console.error("Affiliate feed import failed:", e);
+      results.affiliate = { ok: false, error: e?.message };
+    }
+  }
+
   const hasErrors =
+    (results.suppliers && !results.suppliers.ok) ||
     (results.kinguin && !results.kinguin.ok) ||
-    (results.cheapshark && !results.cheapshark.ok);
+    (results.cheapshark && !results.cheapshark.ok) ||
+    (results.affiliate && !results.affiliate.ok);
 
   return NextResponse.json(results, { status: hasErrors ? 207 : 200 });
 }
