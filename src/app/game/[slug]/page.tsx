@@ -100,7 +100,7 @@ export default async function GamePage({ params }: any) {
               <img
                 src={game.coverImage}
                 alt={`${game.name} Cover`}
-                className="w-full h-full object-cover"
+                className="w-full h-full object-contain p-3"
               />
             ) : (
               <div className="flex items-center justify-center h-full text-slate-500">

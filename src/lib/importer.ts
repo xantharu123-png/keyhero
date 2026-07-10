@@ -1,4 +1,5 @@
 import { prisma } from "@/lib/prisma";
+import { isGameKeyProduct } from "@/lib/productQuality";
 
 /**
  * CheapShark API - Free game deals aggregator
@@ -92,6 +93,8 @@ export async function runOfferImport(pageSize = 60, pageCount = 5) {
   // Ensure stores exist
   const storeCache = new Map<string, number>();
   for (const deal of allDeals) {
+    if (!isGameKeyProduct(deal.title)) continue;
+
     const storeInfo = CHEAPSHARK_STORES[deal.storeID];
     if (!storeInfo || storeCache.has(deal.storeID)) continue;
 
@@ -115,6 +118,8 @@ export async function runOfferImport(pageSize = 60, pageCount = 5) {
 
   // Resolve store IDs we didn't create this run
   for (const deal of allDeals) {
+    if (!isGameKeyProduct(deal.title)) continue;
+
     if (!storeCache.has(deal.storeID)) {
       const storeInfo = CHEAPSHARK_STORES[deal.storeID];
       if (!storeInfo) continue;
@@ -126,6 +131,8 @@ export async function runOfferImport(pageSize = 60, pageCount = 5) {
   // Group deals by game title
   const gameDeals = new Map<string, CheapSharkDeal[]>();
   for (const deal of allDeals) {
+    if (!isGameKeyProduct(deal.title)) continue;
+
     const key = deal.title;
     if (!gameDeals.has(key)) gameDeals.set(key, []);
     gameDeals.get(key)!.push(deal);
@@ -251,12 +258,13 @@ export async function searchAndImport(query: string) {
   if (!res.ok) throw new Error(`CheapShark search failed: ${res.status}`);
 
   const deals: CheapSharkDeal[] = await res.json();
-  if (deals.length === 0) return { ok: true, message: "Keine Deals gefunden", count: 0 };
+  const gameDeals = deals.filter((deal) => isGameKeyProduct(deal.title));
+  if (gameDeals.length === 0) return { ok: true, message: "Keine Deals gefunden", count: 0 };
 
   // Import the found deals using the same logic
   const storeCache = new Map<string, number>();
 
-  for (const deal of deals) {
+  for (const deal of gameDeals) {
     const storeInfo = CHEAPSHARK_STORES[deal.storeID];
     if (!storeInfo || storeCache.has(deal.storeID)) continue;
 
@@ -278,7 +286,7 @@ export async function searchAndImport(query: string) {
   }
 
   // Resolve existing stores
-  for (const deal of deals) {
+  for (const deal of gameDeals) {
     if (!storeCache.has(deal.storeID)) {
       const storeInfo = CHEAPSHARK_STORES[deal.storeID];
       if (!storeInfo) continue;
@@ -288,7 +296,7 @@ export async function searchAndImport(query: string) {
   }
 
   let imported = 0;
-  for (const deal of deals) {
+  for (const deal of gameDeals) {
     const storeId = storeCache.get(deal.storeID);
     if (!storeId) continue;
 

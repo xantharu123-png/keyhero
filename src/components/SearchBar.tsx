@@ -127,12 +127,12 @@ export default function SearchBar({
                 className="flex items-center gap-3 px-4 py-3 hover:bg-white/5 transition-colors border-b border-white/5 last:border-b-0"
               >
                 {/* Thumbnail */}
-                <div className="w-10 h-10 rounded-lg bg-gray-800 overflow-hidden shrink-0">
+                <div className="w-10 h-10 rounded-lg bg-gray-900 overflow-hidden shrink-0">
                   {game.coverImage ? (
                     <img
                       src={game.coverImage}
                       alt={game.name}
-                      className="w-full h-full object-cover"
+                      className="w-full h-full object-contain p-0.5"
                     />
                   ) : (
                     <div className="w-full h-full flex items-center justify-center text-gray-600 text-xs">

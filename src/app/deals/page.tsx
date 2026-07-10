@@ -23,7 +23,7 @@ export default async function DealsPage({ searchParams }: DealsPageProps) {
   let deals: any[] = [];
   try {
     deals = await prisma.offer.findMany({
-      take: 60,
+      take: 240,
       orderBy:
         sortBy === "newest"
           ? { createdAt: "desc" }
@@ -43,7 +43,9 @@ export default async function DealsPage({ searchParams }: DealsPageProps) {
     console.error("Deals fetch error:", e);
   }
 
-  deals = deals.filter((deal: any) => deal.game?.name && isGameKeyProduct(deal.game.name));
+  deals = deals
+    .filter((deal: any) => deal.game?.name && isGameKeyProduct(deal.game.name) && isGameKeyProduct(deal.platform))
+    .slice(0, 60);
 
   const hasDeals = Array.isArray(deals) && deals.length > 0;
 
@@ -137,12 +139,12 @@ export default async function DealsPage({ searchParams }: DealsPageProps) {
               >
                 <div className="flex items-start gap-3">
                   {/* Thumbnail */}
-                  <div className="w-16 h-16 rounded-lg bg-gray-800 overflow-hidden shrink-0">
+                  <div className="w-16 h-16 rounded-lg bg-gray-900 overflow-hidden shrink-0">
                     {deal.game.coverImage ? (
                       <img
                         src={deal.game.coverImage}
                         alt={`${deal.game.name} Key`}
-                        className="w-full h-full object-cover"
+                        className="w-full h-full object-contain p-1"
                       />
                     ) : (
                       <div className="w-full h-full flex items-center justify-center text-gray-600 text-xs">

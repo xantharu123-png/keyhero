@@ -1,23 +1,34 @@
 import Link from "next/link";
 import { prisma } from "@/lib/prisma";
 import SearchBar from "@/components/SearchBar";
-import { isGameKeyProduct } from "@/lib/productQuality";
+import { getTopDealScore, isTopDealCandidate } from "@/lib/productQuality";
 
 export const dynamic = "force-dynamic";
 
 async function getTopDeals() {
-  const games = await prisma.game.findMany({
-    take: 60,
+  const offers = await prisma.offer.findMany({
+    take: 300,
+    where: {
+      finalPrice: { gt: 0 },
+    },
     include: {
-      offers: {
-        orderBy: { finalPrice: "asc" },
-        take: 1,
-        include: { store: true },
-      },
+      game: true,
+      store: true,
     },
     orderBy: { updatedAt: "desc" },
   });
-  return games.filter((game) => isGameKeyProduct(game.name)).slice(0, 9);
+
+  const seenGames = new Set<number>();
+
+  return offers
+    .filter(isTopDealCandidate)
+    .sort((a, b) => getTopDealScore(b) - getTopDealScore(a))
+    .filter((offer) => {
+      if (seenGames.has(offer.gameId)) return false;
+      seenGames.add(offer.gameId);
+      return true;
+    })
+    .slice(0, 9);
 }
 
 async function getStats() {
@@ -30,7 +41,7 @@ async function getStats() {
 }
 
 export default async function HomePage() {
-  const [games, stats] = await Promise.all([getTopDeals(), getStats()]);
+  const [topDeals, stats] = await Promise.all([getTopDeals(), getStats()]);
 
   return (
     <div className="relative min-h-screen bg-[#0a0a0a] text-white">
@@ -97,7 +108,7 @@ export default async function HomePage() {
           Aktuelle Top-Deals
         </h2>
 
-        {games.length === 0 ? (
+        {topDeals.length === 0 ? (
           <div className="text-center py-12 text-gray-500">
             <p className="text-lg mb-2">Noch keine Spiele in der Datenbank.</p>
             <p className="text-sm">
@@ -106,24 +117,24 @@ export default async function HomePage() {
           </div>
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
-            {games.map((game: any) => {
-              const offer = game.offers[0];
-              const lowestPrice = offer?.finalPrice
+            {topDeals.map((offer: any) => {
+              const game = offer.game;
+              const lowestPrice = offer.finalPrice
                 ? `${offer.finalPrice.toFixed(2)} €`
                 : "N/A";
 
               return (
                 <Link
-                  key={game.id}
+                  key={offer.id}
                   href={`/game/${game.slug}`}
                   className="group block bg-white/5 border border-white/10 rounded-xl overflow-hidden hover:border-pink-500/50 transition-all hover:transform hover:-translate-y-1"
                 >
-                  <div className="relative h-48 bg-gray-800 overflow-hidden">
+                  <div className="relative h-48 bg-gray-900 overflow-hidden">
                     {game.coverImage ? (
                       <img
                         src={game.coverImage}
                         alt={`${game.name} Game Key`}
-                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                        className="w-full h-full object-contain p-3 group-hover:scale-[1.03] transition-transform duration-500"
                       />
                     ) : (
                       <div className="flex items-center justify-center h-full text-gray-600">
@@ -145,7 +156,7 @@ export default async function HomePage() {
                       {game.name}
                     </h3>
                     <div className="flex justify-between items-center mt-2 text-sm text-gray-400">
-                      <span>{game.offers.length} {game.offers.length === 1 ? "Angebot" : "Angebote"}</span>
+                      <span>{offer.platform || "Game Key"}</span>
                       <span className="text-xs bg-white/10 px-2 py-1 rounded">
                         DACH
                       </span>
@@ -158,7 +169,7 @@ export default async function HomePage() {
         )}
 
         {/* View All Link */}
-        {games.length > 0 && (
+        {topDeals.length > 0 && (
           <div className="text-center mt-8">
             <Link
               href="/deals"

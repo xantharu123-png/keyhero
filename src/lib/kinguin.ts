@@ -1,4 +1,5 @@
 import { prisma } from "@/lib/prisma";
+import { isGameKeyProduct } from "@/lib/productQuality";
 
 /**
  * Kinguin eCommerce API Importer
@@ -163,6 +164,10 @@ async function importProduct(
 
   if (!product.price || product.price <= 0 || product.qty <= 0) {
     return result; // Skip out-of-stock or free items
+  }
+
+  if (!isGameKeyProduct(product.name)) {
+    return result;
   }
 
   const slug = slugify(product.name);
