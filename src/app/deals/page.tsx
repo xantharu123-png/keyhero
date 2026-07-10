@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { prisma } from "@/lib/prisma";
 import type { Metadata } from "next";
+import { isGameKeyProduct } from "@/lib/productQuality";
 
 export const dynamic = "force-dynamic";
 
@@ -41,6 +42,8 @@ export default async function DealsPage({ searchParams }: DealsPageProps) {
   } catch (e) {
     console.error("Deals fetch error:", e);
   }
+
+  deals = deals.filter((deal: any) => deal.game?.name && isGameKeyProduct(deal.game.name));
 
   const hasDeals = Array.isArray(deals) && deals.length > 0;
 

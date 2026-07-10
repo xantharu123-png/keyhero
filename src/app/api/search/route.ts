@@ -1,5 +1,6 @@
 import { prisma } from "@/lib/prisma";
 import { NextRequest, NextResponse } from "next/server";
+import { isGameKeyProduct } from "@/lib/productQuality";
 
 export async function GET(request: NextRequest) {
   const q = request.nextUrl.searchParams.get("q")?.trim();
@@ -27,14 +28,16 @@ export async function GET(request: NextRequest) {
       },
     });
 
-    const results = games.map((game) => ({
-      id: game.id,
-      name: game.name,
-      slug: game.slug,
-      coverImage: game.coverImage,
-      lowestPrice: game.offers[0]?.finalPrice ?? null,
-      currency: game.offers[0]?.currency ?? "EUR",
-    }));
+    const results = games
+      .filter((game) => isGameKeyProduct(game.name))
+      .map((game) => ({
+        id: game.id,
+        name: game.name,
+        slug: game.slug,
+        coverImage: game.coverImage,
+        lowestPrice: game.offers[0]?.finalPrice ?? null,
+        currency: game.offers[0]?.currency ?? "EUR",
+      }));
 
     return NextResponse.json({ results });
   } catch (error: any) {

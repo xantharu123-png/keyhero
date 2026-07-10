@@ -1,12 +1,10 @@
-﻿# Optionaler Prisma-Model-Block fuer Offer (falls noch nicht vorhanden):
+# Offer model note
 #
-# model Offer {
-#   id        Int      @id @default(autoincrement())
-#   title     String
-#   platform  String?
-#   shop      String?
-#   priceChf  Float?
-#   rating    Float?
-#   url       String?
-#   updatedAt DateTime @updatedAt
-# }
+# KeyHero now uses the relational Offer model from schema.prisma:
+# Offer -> Game
+# Offer -> Store
+# Offer -> PriceHistory
+#
+# Importers and pages should read game/store relations and use finalPrice,
+# currency, affiliateUrl, region, platform, and edition. The legacy flat fields
+# title, shop, and priceChf remain optional compatibility fields only.

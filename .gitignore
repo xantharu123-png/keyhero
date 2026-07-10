@@ -16,3 +16,4 @@ Thumbs.db
 .vscode
 .vercel
 .env*.local
+tsconfig.tsbuildinfo

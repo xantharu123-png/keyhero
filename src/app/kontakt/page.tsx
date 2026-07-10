@@ -1,11 +1,17 @@
-﻿// @ts-nocheck
-export const metadata = { title: "Kontakt â€“ KeyHero" };
+import type { Metadata } from "next";
+
+export const metadata: Metadata = { title: "Kontakt - KeyHero" };
 
 export default function Page() {
   return (
-    <div className="container-xl px-4 py-10 text-[13px] text-textDim">
-      <h1 className="font-hero text-textBright text-[1.4rem] mb-3">Kontakt</h1>
-      <p>Schreiben Sie uns eine Nachricht: kontakt@keyhero.ch</p>
+    <div className="container-xl px-4 py-10 text-sm text-textDim">
+      <h1 className="mb-3 text-3xl font-bold text-textBright">Kontakt</h1>
+      <p>
+        Schreiben Sie uns eine Nachricht:{" "}
+        <a href="mailto:kontakt@keyhero.ch" className="text-neonBlue">
+          kontakt@keyhero.ch
+        </a>
+      </p>
       <p className="mt-2">Wir antworten in der Regel zeitnah.</p>
     </div>
   );

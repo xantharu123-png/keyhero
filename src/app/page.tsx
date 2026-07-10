@@ -1,12 +1,13 @@
 import Link from "next/link";
 import { prisma } from "@/lib/prisma";
 import SearchBar from "@/components/SearchBar";
+import { isGameKeyProduct } from "@/lib/productQuality";
 
 export const dynamic = "force-dynamic";
 
 async function getTopDeals() {
   const games = await prisma.game.findMany({
-    take: 9,
+    take: 60,
     include: {
       offers: {
         orderBy: { finalPrice: "asc" },
@@ -16,7 +17,7 @@ async function getTopDeals() {
     },
     orderBy: { updatedAt: "desc" },
   });
-  return games;
+  return games.filter((game) => isGameKeyProduct(game.name)).slice(0, 9);
 }
 
 async function getStats() {
