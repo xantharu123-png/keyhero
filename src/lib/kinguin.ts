@@ -12,6 +12,18 @@ import { isGameKeyProduct } from "@/lib/productQuality";
  */
 
 const KINGUIN_API_BASE = "https://gateway.kinguin.net/esa/api/v1";
+
+/**
+ * Baut die öffentliche Kinguin-Produkt-URL mit optionalem Affiliate-Tracking.
+ * OHNE Tracking verdient die Seite 0 € – also in .env.local setzen:
+ *   KINGUIN_AFFILIATE_QUERY=r=deine-tracking-id
+ * (den exakten Parameter liefert euer Kinguin-UP!-/Netzwerk-Dashboard).
+ */
+function buildKinguinUrl(kinguinId: number): string {
+  const base = `https://www.kinguin.net/category/${kinguinId}`;
+  const query = process.env.KINGUIN_AFFILIATE_QUERY?.replace(/^\?/, "").trim();
+  return query ? `${base}?${query}` : base;
+}
 const USD_TO_CHF = 0.88;
 const EUR_TO_CHF = 0.95;
 
@@ -173,7 +185,7 @@ async function importProduct(
   const slug = slugify(product.name);
   const coverImage = product.images?.cover?.url || product.images?.cover?.thumbnail || null;
   const platform = normalizePlatform(product.platform);
-  const priceEur = +(product.price / 100).toFixed(2); // Kinguin prices are in cents
+  const priceEur = +product.price.toFixed(2); // Kinguin liefert EUR als Float (z. B. 5.79), nicht Cent
   const priceChf = +(priceEur * EUR_TO_CHF).toFixed(2);
 
   try {
@@ -194,7 +206,7 @@ async function importProduct(
     result.game = true;
 
     // Build affiliate URL
-    const affiliateUrl = `https://www.kinguin.net/category/${product.kinguinId}`;
+    const affiliateUrl = buildKinguinUrl(product.kinguinId);
 
     // Upsert offer
     const existingOffer = await prisma.offer.findFirst({

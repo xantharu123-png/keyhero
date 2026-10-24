@@ -9,11 +9,18 @@ export const maxDuration = 60;
 export const dynamic = "force-dynamic";
 
 export async function GET(request: NextRequest) {
-  // Optional: protect with a secret key
-  const authHeader = request.nextUrl.searchParams.get("key");
-  const expectedKey = process.env.IMPORT_SECRET;
+  // Schutz: ?key=IMPORT_SECRET ODER Vercel-Cron (Authorization: Bearer CRON_SECRET).
+  // Vercel sendet den Bearer-Header automatisch, wenn CRON_SECRET in den
+  // Vercel-Environment-Variables gesetzt ist.
+  const keyParam = request.nextUrl.searchParams.get("key");
+  const importSecret = process.env.IMPORT_SECRET;
+  const cronSecret = process.env.CRON_SECRET;
+  const bearer = request.headers.get("authorization");
 
-  if (expectedKey && authHeader !== expectedKey) {
+  const keyOk = !!importSecret && keyParam === importSecret;
+  const cronOk = !!cronSecret && bearer === `Bearer ${cronSecret}`;
+
+  if ((importSecret || cronSecret) && !keyOk && !cronOk) {
     return NextResponse.json(
       { success: false, error: "Unauthorized" },
       { status: 401 }
@@ -25,7 +32,7 @@ export async function GET(request: NextRequest) {
 
   const results: Record<string, any> = {
     success: true,
-    version: "3.0-supplier-feeds",
+    version: "3.1-affiliate-ready",
     timestamp: new Date().toISOString(),
   };
 
@@ -38,7 +45,7 @@ export async function GET(request: NextRequest) {
     }
   }
 
-  // Kinguin Import (primary source – real affiliate money)
+  // Kinguin Import (direkte API; Provision nur mit KINGUIN_AFFILIATE_QUERY!)
   if (source === "all" || source === "kinguin") {
     try {
       const kinguinResult = await runKinguinImport(5);
@@ -49,7 +56,7 @@ export async function GET(request: NextRequest) {
     }
   }
 
-  // CheapShark Import (secondary source – free deals aggregator)
+  // CheapShark Import (secondary source – free deals aggregator, keine Provision)
   if (source === "all" || source === "cheapshark") {
     try {
       const cheapsharkResult = await runOfferImport();

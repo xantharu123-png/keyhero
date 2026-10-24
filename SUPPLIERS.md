@@ -65,3 +65,30 @@ Import endpoint:
 - `/api/import/offers?source=all` runs supplier sync, Kinguin, CheapShark, and configured feeds.
 
 Do not scrape price-comparison competitors. Prefer official APIs, affiliate product feeds, or direct partner exports.
+
+## Affiliate-Tracking & Sicherheit (Stand 2026-07-24)
+
+Neue Environment-Variablen:
+
+- `IMPORT_SECRET` — schuetzt `/api/import/offers` und `/api/stats/clicks`.
+  Lokal in `.env.local` gesetzt; in Vercel unter Project Settings →
+  Environment Variables ebenfalls eintragen.
+- `CRON_SECRET` — in Vercel setzen. Vercel Cron sendet dann automatisch
+  `Authorization: Bearer <CRON_SECRET>` und der stuendliche Import
+  (`vercel.json`) laeuft trotz aktivem IMPORT_SECRET weiter.
+- `KINGUIN_AFFILIATE_QUERY` — Tracking-Parameter fuer Kinguin-Links,
+  z. B. `r=deine-id` aus dem Kinguin-Affiliate-Dashboard. Ohne diese
+  Variable werden nackte Produkt-URLs gebaut → keine Provision.
+
+## Klick-Tracking
+
+- Jeder Redirect ueber `/go/<offerId>` schreibt einen Eintrag in die
+  `Click`-Tabelle (offerId, storeId, gameId, subId, Referer-Host, User-Agent;
+  keine IP, kein Cookie → DSGVO-schonend).
+- Kampagnen-Tracking: `/go/123?subid=deals-seite` haengt die SubID ans
+  Affiliate-Ziel an (AWIN-Shops: `clickref`, Admitad-Shops: `subid`,
+  Mapping in `src/lib/clickTracking.ts`).
+- Auswertung: `/api/stats/clicks?key=<IMPORT_SECRET>&days=30` liefert
+  Klicks pro Shop, Top-Spiele und SubID-Aufschluesselung.
+- Verkaeufe/Provisionen sieht man im Dashboard des jeweiligen Netzwerks;
+  dort nach clickref/subid filtern, um Klicks mit Sales zu matchen.

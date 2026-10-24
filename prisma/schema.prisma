@@ -83,6 +83,7 @@ model Offer {
   game          Game     @relation(fields: [gameId], references: [id])
   store         Store    @relation(fields: [storeId], references: [id])
   priceHistory  PriceHistory[]
+  clicks        Click[]
 
   @@index([gameId])
   @@index([storeId])
@@ -98,4 +99,21 @@ model PriceHistory {
   offer     Offer    @relation(fields: [offerId], references: [id])
 
   @@index([offerId])
+}
+// Klick-Tracking für /go/[offerId] Redirects.
+// DSGVO-schonend: keine IP, keine Cookies – nur Kontext des Klicks.
+model Click {
+  id        Int      @id @default(autoincrement())
+  offerId   Int
+  storeId   Int?
+  gameId    Int?
+  subId     String?
+  referer   String?
+  userAgent String?
+  createdAt DateTime @default(now())
+
+  offer     Offer    @relation(fields: [offerId], references: [id])
+
+  @@index([offerId])
+  @@index([createdAt])
 }
