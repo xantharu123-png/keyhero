@@ -29,7 +29,7 @@
     "ts-node": "^10.9.2"
   },
   "engines": {
-    "node": "20.x"
+    "node": "24.x"
   },
   "prisma": {
     "seed": "ts-node --compiler-options {\"module\":\"CommonJS\"} prisma/seed.ts"
